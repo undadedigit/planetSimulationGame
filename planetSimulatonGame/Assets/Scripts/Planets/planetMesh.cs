@@ -24,20 +24,29 @@ public class planetMesh : MonoBehaviour
     private int[] triangles;
     //face to cube vectors
     public int diameter;
-    private CubeFaceVectors top = new CubeFaceVectors();
+    //player
+    private Transform player;
+    private Transform skyboxCam;
+    //enlarged mesh
+    private int enlargedVertex = -1;
 
     private void Start()
     {
-
+        //mesh
         CreateMesh(Vector3.zero, Vector3.zero);
+        //player
+        player = GameObject.Find("Player").transform;
+        skyboxCam = GameObject.Find("SkyboxCamera").transform;
     }
 
     private void Update()
     {
-        if (Input.GetKey("space"))
+        if (Input.GetKey("m"))
         {
             CreateMesh(Vector3.zero, Vector3.zero);
         }
+        
+        PlayerDistance();
     }
 
     private void CreateMesh(Vector3 cubePosition, Vector3 cubeRotate)
@@ -52,15 +61,12 @@ public class planetMesh : MonoBehaviour
         SetVertices();
         CreateTriangles();
         UpdateMesh();
-        //FaceToCube(cubePosition, cubeRotate);
     }
 
     private void SetVertices()
     {
         float xMultiplier = (float)size / xRes;
         float zMultiplier = (float)size / zRes;
-        Debug.Log(xMultiplier);
-        Debug.Log(zMultiplier);
 
         for (int index = 0, z = 0; z <= zRes; z++)
         {
@@ -103,9 +109,30 @@ public class planetMesh : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    private void FaceToCube(Vector3 cubePosition, Vector3 cubeRotate)
+    private void PlayerDistance()
     {
-        transform.position = cubePosition;
-        transform.Rotate(cubeRotate);
+
+        for (int index = 0, z = 0; z <= zRes; z++)
+        {
+            for (int x = 0; x <= xRes; x++)
+            {
+                if (Vector3.Distance(skyboxCam.position, vertices[index]) <= 20)
+                {
+                    EnlargeMesh(index);
+                }
+
+                index++;
+            }
+        }
+    }
+
+    private void EnlargeMesh(int vertex)
+    {
+        if (enlargedVertex == -1)
+        {
+            enlargedVertex = vertex;
+            vertices[vertex].y = 100;
+            UpdateMesh();
+        }
     }
 }
