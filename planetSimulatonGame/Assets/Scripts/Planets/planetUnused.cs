@@ -12,7 +12,7 @@ struct CubeFaceVectors
     }
 }
 
-public class planetMesh : MonoBehaviour
+public class planetUnused: MonoBehaviour
 {
     //mesh
     private Mesh mesh;

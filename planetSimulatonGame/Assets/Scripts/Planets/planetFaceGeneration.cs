@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class planetFace
+public class planetFaceGeneration
 {
     private Mesh mesh;
     private int resolution;
@@ -11,7 +11,7 @@ public class planetFace
     private Vector3 axisB;
     private float radius;
 
-    public planetFace(Mesh mesh, int resolution, Vector3 localUp, float radius)
+    public planetFaceGeneration(Mesh mesh, int resolution, Vector3 localUp, float radius)
     {
         this.mesh = mesh;
         this.resolution = resolution;
@@ -35,7 +35,8 @@ public class planetFace
                 int i = x + y * resolution;
                 Vector2 percent = new Vector2(x, y) / (resolution - 1);
                 Vector3 pointOnUnitCube = ((localUp) + (percent.x - 0.5f) * 2 * axisA + (percent.y - 0.5f) * 2 * axisB) * radius;
-                vertices[i] = pointOnUnitCube;
+                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
+                vertices[i] = pointOnUnitSphere * radius;
 
                 if (x != resolution - 1 && y != resolution - 1)
                 {
