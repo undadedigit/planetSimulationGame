@@ -13,10 +13,6 @@ public class groundCheck : MonoBehaviour
         groundLayer = LayerMask.GetMask("Ground");
     }
 
-    private void FixedUpdate()
-    {
-    }
-
     public bool GroundCheck()
     {
         grounded = Physics.CheckSphere(transform.position, checkSphereRadius, groundLayer);

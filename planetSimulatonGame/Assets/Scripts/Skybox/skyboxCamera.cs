@@ -14,6 +14,7 @@ public class skyboxCamera : MonoBehaviour
         //player
         player = GameObject.Find("Player").transform;
         playerCam = player.Find("Head").Find("PlayerCam").transform;
+        transform.position = playerCam.position;
         //scale
         scaleScript = transform.GetComponentInParent<scaleControl>();
         skyboxScale = scaleScript.skyboxScale;

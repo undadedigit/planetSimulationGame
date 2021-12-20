@@ -1,55 +1,71 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class planetMeshFace : MonoBehaviour
 {
     //mesh
-    public Mesh mesh;
-    private MeshFilter surfaceMesh;
+    private Mesh mesh;
+    private int resolution;
+    private Vector3 localUp;
+    private float radius;
+    private Vector3 axisA;
+    private Vector3 axisB;
     //player
     private Transform skyboxCam;
     private float skyboxScale;
-    private float minDistance;
-
-    private Vector3[] enlargedVertices;
-    private int enlargedVertexCount;
+    //surface
+    private int surfaceMeshCount;
 
     private void Start()
     {
         //player
         skyboxCam = GameObject.Find("SkyboxCamera").transform;
         skyboxScale = skyboxCam.parent.GetComponent<scaleControl>().skyboxScale;
-        minDistance = 1f;
-
-        enlargedVertices = new Vector3[3];
     }
 
-    private void Update()
+    public void NewFace(Mesh mesh, int resolution, Vector3 localUp, float radius)
     {
-        for (int i = 0; i < mesh.vertices.Length; i++)
+        this.mesh = mesh;
+        this.resolution = resolution;
+        this.localUp = localUp;
+        this.radius = radius;
+
+        axisA = new Vector3(localUp.y, localUp.z, localUp.x);
+        axisB = Vector3.Cross(localUp, axisA);
+    }
+
+    public void ConstructMesh(float scale = 1)
+    {
+        Vector3[] vertices = new Vector3[resolution * resolution];
+        int[] triangles = new int[(resolution - 1) * (resolution - 1) * 6];
+        int triangleIndex = 0;
+
+        for (int y = 0; y < resolution; y++)
         {
-            if (Vector3.Distance(mesh.vertices[i], skyboxCam.position) <= minDistance && enlargedVertexCount < 3)
+            for (int x = 0; x < resolution; x++)
             {
-                enlargedVertices[enlargedVertexCount] = mesh.vertices[i];
-                enlargedVertexCount++;
+                int i = x + y * resolution;
+                Vector2 percent = new Vector2(x, y) / (resolution - 1);
+                Vector3 pointOnUnitCube = ((localUp) + (percent.x - 0.5f) * 2 * axisA + (percent.y - 0.5f) * 2 * axisB) * radius;
+                Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
+                vertices[i] = pointOnUnitSphere * radius * scale;
+
+                if (x != resolution - 1 && y != resolution - 1)
+                {
+                    triangles[triangleIndex] = i;
+                    triangles[triangleIndex + 1] = i + resolution + 1;
+                    triangles[triangleIndex + 2] = i + resolution;
+                    triangles[triangleIndex + 3] = i;
+                    triangles[triangleIndex + 4] = i + 1;
+                    triangles[triangleIndex + 5] = i + resolution + 1;
+
+                    triangleIndex += 6;
+                }
             }
         }
 
-        if (enlargedVertexCount == 3)
-        {
-            Debug.Log("a");
-            GameObject enlargedObject = new GameObject("Surface");
-            Mesh enlargedMesh = new Mesh();
-            enlargedObject.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
-            surfaceMesh = enlargedObject.AddComponent<MeshFilter>();
-            surfaceMesh.sharedMesh = new Mesh();
-            surfaceMesh.sharedMesh.vertices = enlargedVertices;
-            surfaceMesh.sharedMesh.triangles = new int[]{0, 1, 2};
-            surfaceMesh.sharedMesh.RecalculateNormals();
-            /*
-            */
-            enlargedVertexCount = 4;
-        }
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
     }
 }

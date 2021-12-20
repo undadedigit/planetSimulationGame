@@ -14,7 +14,7 @@ struct CubeFaceVectors
 
 public class planetUnused: MonoBehaviour
 {
-    //mesh
+    //planetMesh
     private Mesh mesh;
     public int xRes;
     public int zRes;
@@ -27,12 +27,12 @@ public class planetUnused: MonoBehaviour
     //player
     private Transform player;
     private Transform skyboxCam;
-    //enlarged mesh
+    //enlarged planetMesh
     private int enlargedVertex = -1;
 
     private void Start()
     {
-        //mesh
+        //planetMesh
         CreateMesh(Vector3.zero, Vector3.zero);
         //player
         player = GameObject.Find("Player").transform;

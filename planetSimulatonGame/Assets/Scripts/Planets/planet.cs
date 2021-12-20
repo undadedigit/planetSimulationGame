@@ -1,63 +1,118 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class planet: MonoBehaviour
 {
-    private planetFaceGeneration[] planetFaces;
+    //planet
+    private planetMeshFace[] faceScripts;
     private MeshFilter[] meshFilters;
-    private int resolution = 10;
-    private float radius;
-
+    public int resolution = 20;
+    public float radius;
+    private Vector3[] directions = { Vector3.up, Vector3.down, Vector3.right, Vector3.left, Vector3.forward, Vector3.back };
+    //surface
+    private GameObject enlargedPlanet;
+    private bool enlarged;
+    private int minDistance;
+    public Material surfaceMat;
+    //player
+    private Transform player;
+    private playerMovement playerScript;
+    private Transform skyboxCam;
+    private float skyboxScale;
+    //stats
     public Vector3 position;
+    public float mass;
 
 
     private void Start()
     {
+        //surface
+        enlargedPlanet = GameObject.Find("EnlargedPlanet");
+        minDistance = 150;
+        //player
+        player = GameObject.Find("Player").transform;
+        playerScript = player.gameObject.GetComponent<playerMovement>();
+        skyboxCam = GameObject.Find("SkyboxCamera").transform;
+        skyboxScale = skyboxCam.parent.GetComponent<scaleControl>().skyboxScale;
+
         Initialise();
-        GenerateMesh();
     }
 
     private void Update()
     {
-        transform.localPosition = position;
+        Position();
+        PlayerDistance();
     }
 
     private void Initialise()
     {
-        planetFaces = new planetFaceGeneration[6];
+        faceScripts = new planetMeshFace[6];
 
         if (meshFilters == null || meshFilters.Length == 0)
         {
             meshFilters = new MeshFilter[6];
         }
 
-        radius = 5;
+        CreateSkyboxFaces();
+    }
 
-        Vector3[] directions = {Vector3.up, Vector3.down, Vector3.right, Vector3.left, Vector3.forward, Vector3.back};
-
+    private void CreateSkyboxFaces()
+    {
         for (int i = 0; i < 6; i++)
         {
             if (meshFilters[i] == null)
             {
                 GameObject meshObject = new GameObject("PlanetFace");
-                meshObject.layer = LayerMask.NameToLayer("Skybox");
                 meshObject.transform.parent = transform;
+                meshObject.layer = LayerMask.NameToLayer("Skybox");
+
                 meshObject.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
                 meshFilters[i] = meshObject.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
-                meshObject.AddComponent<planetMeshFace>().mesh = meshFilters[i].sharedMesh;
+
+                faceScripts[i] = meshObject.AddComponent<planetMeshFace>();
+                faceScripts[i].NewFace(meshFilters[i].sharedMesh, resolution, directions[i], radius);
+                faceScripts[i].ConstructMesh();
             }
 
-            planetFaces[i] = new planetFaceGeneration(meshFilters[i].sharedMesh, resolution, directions[i], radius);
         }
     }
 
-    private void GenerateMesh()
+    private void Position()
     {
-        foreach (planetFaceGeneration face in planetFaces)
+        transform.localPosition = position;
+        enlargedPlanet.transform.position = position * skyboxScale;
+    }
+
+    private void PlayerDistance()
+    {
+        if (Vector3.Distance(transform.position, skyboxCam.position) < minDistance && !enlarged)
         {
-            face.ConstructMesh();
+            CreateSurfaceFaces(enlargedPlanet);
+
+            enlarged = true;
+        }
+    }
+
+    private void CreateSurfaceFaces(GameObject enlargedPlanet)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            GameObject meshObject = new GameObject("EnlargedPlanetFace");
+            meshObject.transform.parent = enlargedPlanet.transform;
+            meshObject.layer = LayerMask.NameToLayer("Ground");
+            meshObject.transform.localPosition = Vector3.zero;
+
+            meshObject.AddComponent<MeshRenderer>().sharedMaterial = surfaceMat;
+            meshFilters[i] = meshObject.AddComponent<MeshFilter>();
+            meshFilters[i].sharedMesh = new Mesh();
+
+
+            faceScripts[i] = meshObject.AddComponent<planetMeshFace>();
+            faceScripts[i].NewFace(meshFilters[i].sharedMesh, resolution, directions[i], radius);
+            faceScripts[i].ConstructMesh(skyboxScale);
+
+            MeshCollider collider = meshObject.AddComponent<MeshCollider>();
+            collider.convex = true;
         }
     }
 }

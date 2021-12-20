@@ -15,7 +15,7 @@ public class scaleControl : MonoBehaviour
     {
         //player
         player = GameObject.Find("Player").transform;
-        playerController = player.GetComponent<CharacterController>();
+        //playerController = player.GetComponent<CharacterController>();
         //environment
         environment = GameObject.Find("Environment").transform;
     }
@@ -30,9 +30,9 @@ public class scaleControl : MonoBehaviour
         if (player.position.magnitude >= threshold)
         {
             environment.position -= player.position / skyboxScale;
-            playerController.enabled = false;
+            //playerController.enabled = false;
             player.position = Vector3.zero;
-            playerController.enabled = true;
+            //playerController.enabled = true;
         }
     }
 }

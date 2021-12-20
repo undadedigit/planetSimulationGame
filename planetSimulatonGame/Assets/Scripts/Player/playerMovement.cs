@@ -44,6 +44,7 @@ public class playerMovement : MonoBehaviour
     private float jumpResetTime = 0.2f;
     //gravity
     private float gravity = 20f;
+    public float mass = 5;
     //ground check
     private Transform feet;
     private groundCheck grounded;
@@ -61,8 +62,9 @@ public class playerMovement : MonoBehaviour
     {
         Movement();
         Jump();
-        Gravity();
+        //Gravity();
         Move();
+
     }
 
     private void Movement()
@@ -123,7 +125,7 @@ public class playerMovement : MonoBehaviour
         }
     }
 
-    private void Gravity()
+    private void Ggravity()
     {
         if (!grounded.GroundCheck())
         {
@@ -140,4 +142,6 @@ public class playerMovement : MonoBehaviour
         Vector3 movement = transform.forward * (forward - backward) + transform.right * (right - left) + transform.up * up;
         controller.Move(movement * Time.deltaTime);
     }
+
+
 }
