@@ -6,14 +6,13 @@ public class planetMeshFace : MonoBehaviour
     private Mesh mesh;
     private int resolution;
     private Vector3 localUp;
-    private float radius;
+    private planetSettings settings;
+    private noiseSettings noise;
     private Vector3 axisA;
     private Vector3 axisB;
     //player
     private Transform skyboxCam;
     private float skyboxScale;
-    //surface
-    private int surfaceMeshCount;
 
     private void Start()
     {
@@ -22,18 +21,19 @@ public class planetMeshFace : MonoBehaviour
         skyboxScale = skyboxCam.parent.GetComponent<scaleControl>().skyboxScale;
     }
 
-    public void NewFace(Mesh mesh, int resolution, Vector3 localUp, float radius)
+    public void NewFace(Mesh mesh, int resolution, Vector3 localUp, planetSettings settings, noiseSettings noise)
     {
         this.mesh = mesh;
         this.resolution = resolution;
         this.localUp = localUp;
-        this.radius = radius;
+        this.settings = settings;
+        this.noise = noise;
 
         axisA = new Vector3(localUp.y, localUp.z, localUp.x);
         axisB = Vector3.Cross(localUp, axisA);
     }
 
-    public void ConstructMesh(float scale = 1)
+    public void ConstructMesh(noisePlanetFilter noiseFilter, float scale)
     {
         Vector3[] vertices = new Vector3[resolution * resolution];
         int[] triangles = new int[(resolution - 1) * (resolution - 1) * 6];
@@ -45,9 +45,9 @@ public class planetMeshFace : MonoBehaviour
             {
                 int i = x + y * resolution;
                 Vector2 percent = new Vector2(x, y) / (resolution - 1);
-                Vector3 pointOnUnitCube = ((localUp) + (percent.x - 0.5f) * 2 * axisA + (percent.y - 0.5f) * 2 * axisB) * radius;
+                Vector3 pointOnUnitCube = ((localUp) + (percent.x - 0.5f) * 2 * axisA + (percent.y - 0.5f) * 2 * axisB) * settings.radius;
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                vertices[i] = pointOnUnitSphere * radius * scale;
+                vertices[i] = pointOnUnitSphere * noiseFilter.VertexAltitude(pointOnUnitSphere) * settings.radius * scale;
 
                 if (x != resolution - 1 && y != resolution - 1)
                 {

@@ -135,6 +135,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6682246923236498623, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985245, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_Name
       value: Player
@@ -206,10 +210,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resolution: 20
-  radius: 100
-  surfaceMat: {fileID: 2100000, guid: 21b75de57cf284649977e009a4aebe09, type: 2}
   position: {x: 0, y: 0, z: 0}
   mass: 2e+19
+  settings: {fileID: 11400000, guid: 43e2624612419f34595dec0372885cc2, type: 2}
+  noise: {fileID: 11400000, guid: 61deed0df5eb1a146b5012a80a596ab7, type: 2}
 --- !u!1 &475682621
 GameObject:
   m_ObjectHideFlags: 0
