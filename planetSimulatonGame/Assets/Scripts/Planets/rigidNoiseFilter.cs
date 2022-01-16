@@ -1,11 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class noisePlanetFilter : iNoiseFilter
+public class rigidNoiseFilter : iNoiseFilter
 {
-    private noiseSettings settings;
     private Noise noise = new Noise();
+    private noiseSettings settings;
 
-    public noisePlanetFilter(noiseSettings settings)
+    public rigidNoiseFilter(noiseSettings settings)
     {
         this.settings = settings;
     }
@@ -16,10 +18,15 @@ public class noisePlanetFilter : iNoiseFilter
         float noiseValue = 0;
         float frequency = settings.baseRoughnesss;
         float amplitude = 1;
+        float weight = 1;
+
         for (int i = 0; i < settings.layers; i++)
         {
-            float v = noise.Evaluate(vertex * frequency + settings.centre) * settings.strength;
-            noiseValue += (v + 1) * 0.5f * amplitude;
+            float v = 1 - Mathf.Abs(noise.Evaluate(vertex * frequency + settings.centre) * settings.strength);
+            v *= v;
+            v *= weight;
+            weight = Mathf.Clamp01(v * settings.weightMultiplier);
+            noiseValue += v * amplitude;
             frequency *= settings.roughness;
             amplitude *= settings.persistance;
         }

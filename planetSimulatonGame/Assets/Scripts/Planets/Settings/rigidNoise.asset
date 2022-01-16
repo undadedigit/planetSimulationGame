@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5deac64a0dce8af4db540c877ba3049c, type: 3}
-  m_Name: noise
+  m_Name: rigidNoise
   m_EditorClassIdentifier: 
-  strength: 0.25
+  filterType: 1
+  strength: 0.1
   layers: 5
-  baseRoughnesss: 2.5
-  roughness: 0.25
+  baseRoughnesss: 1.75
+  roughness: 1.25
   persistance: 0.5
   centre: {x: 0, y: 0, z: 0}
   minValue: 0

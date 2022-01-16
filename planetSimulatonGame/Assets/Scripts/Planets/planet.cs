@@ -22,9 +22,9 @@ public class planet: MonoBehaviour
     public float mass;
     //terrain
     private noisePlanetFilter[] noiseFilters;
+    private planetTerrainGenerator terrainGenerator;
     //settings
     public planetSettings settings;
-    public noiseSettings noise;
 
     private void Start()
     {
@@ -33,6 +33,7 @@ public class planet: MonoBehaviour
         minDistance = 150;
         //terrain
         noiseFilters = new noisePlanetFilter[settings.noiseLayers.Length];
+        terrainGenerator = new planetTerrainGenerator(settings);
         //player
         player = GameObject.Find("Player").transform;
         playerScript = player.gameObject.GetComponent<playerMovement>();
@@ -47,7 +48,7 @@ public class planet: MonoBehaviour
         Position();
         PlayerDistance();
         
-        if (Input.GetKey("a") || true)
+        if (Input.GetKey("a"))
         {
             Regenerate();
         }
@@ -68,6 +69,8 @@ public class planet: MonoBehaviour
         }
 
         CreateFaces("PlanetFace", transform, "Skybox");
+        CreateFaces("SurfaceFace", transform.GetChild(0), "Ground", 0, skyboxScale, true);
+        EnableSurfaceFaces(false);
     }
 
     private void Position()
@@ -80,7 +83,8 @@ public class planet: MonoBehaviour
     {
         if (Vector3.Distance(transform.position, skyboxCam.position) < minDistance && !enlarged)
         {
-            CreateFaces("SurfaceFace", transform.GetChild(0), "Ground", 0, skyboxScale, true);
+            EnableSkyboxFaces(false);
+            EnableSurfaceFaces(true);
 
             enlarged = true;
         }
@@ -95,13 +99,13 @@ public class planet: MonoBehaviour
             meshObject.layer = LayerMask.NameToLayer(layer);
             meshObject.transform.localPosition *= localPosition;
 
-            meshObject.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+            meshObject.AddComponent<MeshRenderer>().sharedMaterial = settings.planetMat;//.sharedMaterial = new Material(Shader.Find("Standard"));
             meshFilters[i] = meshObject.AddComponent<MeshFilter>();
             meshFilters[i].sharedMesh = new Mesh();
 
             faceScripts[i] = meshObject.AddComponent<planetMeshFace>();
-            faceScripts[i].NewFace(meshFilters[i].sharedMesh, resolution, directions[i], settings, noise);
-            faceScripts[i].ConstructMesh(noiseFilters, skyboxScale);
+            faceScripts[i].NewFace(terrainGenerator, meshFilters[i].sharedMesh, resolution, directions[i], settings);
+            faceScripts[i].ConstructMesh(skyboxScale);
 
             if (colliders)
             {
@@ -125,9 +129,22 @@ public class planet: MonoBehaviour
     {
         for (int i = 0; i < 6; i++)
         {
-            faceScripts[i].ConstructMesh(noiseFilters, skyboxScale);
+            faceScripts[i].ConstructMesh(skyboxScale);
         }
 
         SetColour();
+    }
+
+    private void EnableSkyboxFaces(bool t)
+    {
+        for (int i = 1; i < 7; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(t);
+        }
+    }
+
+    private void EnableSurfaceFaces(bool t)
+    {
+        transform.GetChild(0).gameObject.SetActive(t);
     }
 }

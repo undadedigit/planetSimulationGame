@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 100
   colour: {r: 1, g: 0.38314515, b: 0, a: 0}
-  strength: 0.15
-  layers: 5
-  baseRoughnesss: 2.5
-  roughness: 0.25
-  persistance: 0.5
-  centre: {x: 0, y: 0, z: 0}
-  minValue: 0
+  noiseLayers:
+  - enabled: 1
+    firstLayerMask: 0
+    noise: {fileID: 11400000, guid: 61deed0df5eb1a146b5012a80a596ab7, type: 2}
+  - enabled: 1
+    firstLayerMask: 1
+    noise: {fileID: 11400000, guid: 0d5dc343be2b0ea40b3115e0b744e5d5, type: 2}
+  - enabled: 1
+    firstLayerMask: 0
+    noise: {fileID: 11400000, guid: 34682ed2e107efc45a4568127576600b, type: 2}
