@@ -20,3 +20,4 @@ MonoBehaviour:
   persistance: 0.5
   centre: {x: 0, y: 0, z: 0}
   minValue: 0
+  weightMultiplier: 0.8

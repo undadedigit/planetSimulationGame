@@ -13,6 +13,7 @@ public class planetTerrainGenerator
         {
             noiseFilters[i] = noiseFilterFactory.CreateNoiseFilter(settings.noiseLayers[i].noise);
         }
+
     }
 
     public Vector3 CalculatePointOnPlanet(Vector3 pointOnUnitSphere)
@@ -37,6 +38,7 @@ public class planetTerrainGenerator
                 elevation += noiseFilters[i].VertexAltitude(pointOnUnitSphere) * mask;
             }
         }
+
         return pointOnUnitSphere * settings.radius * (1 + elevation);
     }
 }

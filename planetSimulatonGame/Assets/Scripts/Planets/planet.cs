@@ -50,7 +50,7 @@ public class planet: MonoBehaviour
         
         if (Input.GetKey("a"))
         {
-            Regenerate();
+            GenerateMesh();
         }
     }
 
@@ -99,13 +99,12 @@ public class planet: MonoBehaviour
             meshObject.layer = LayerMask.NameToLayer(layer);
             meshObject.transform.localPosition *= localPosition;
 
-            meshObject.AddComponent<MeshRenderer>().sharedMaterial = settings.planetMat;//.sharedMaterial = new Material(Shader.Find("Standard"));
+            meshObject.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
             meshFilters[i] = meshObject.AddComponent<MeshFilter>();
             meshFilters[i].sharedMesh = new Mesh();
 
             faceScripts[i] = meshObject.AddComponent<planetMeshFace>();
             faceScripts[i].NewFace(terrainGenerator, meshFilters[i].sharedMesh, resolution, directions[i], settings);
-            faceScripts[i].ConstructMesh(skyboxScale);
 
             if (colliders)
             {
@@ -114,18 +113,10 @@ public class planet: MonoBehaviour
             }
         }
 
-        SetColour();
+        GenerateMesh();
     }
 
-    private void SetColour()
-    {
-        foreach (MeshFilter filter in meshFilters)
-        {
-            filter.GetComponent<MeshRenderer>().sharedMaterial.color = settings.colour;
-        }
-    }
-
-    private void Regenerate()
+    private void GenerateMesh()
     {
         for (int i = 0; i < 6; i++)
         {
@@ -133,6 +124,10 @@ public class planet: MonoBehaviour
         }
 
         SetColour();
+    }
+
+    private void SetColour()
+    {
     }
 
     private void EnableSkyboxFaces(bool t)

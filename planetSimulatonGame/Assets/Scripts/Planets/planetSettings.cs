@@ -6,8 +6,6 @@ public class planetSettings : ScriptableObject
     //shape
     public float radius;
     //colour
-    public Color colour;
-    public Material planetMat;
     //noise
     public noiseLayer[] noiseLayers;
     [System.Serializable]

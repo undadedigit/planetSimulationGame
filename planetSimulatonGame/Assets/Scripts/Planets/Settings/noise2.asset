@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5deac64a0dce8af4db540c877ba3049c, type: 3}
   m_Name: noise2
   m_EditorClassIdentifier: 
+  filterType: 0
   strength: 0.75
   layers: 5
   baseRoughnesss: 1
@@ -19,3 +20,4 @@ MonoBehaviour:
   persistance: 0.5
   centre: {x: 0, y: 0, z: 0}
   minValue: 0
+  weightMultiplier: 0.8
