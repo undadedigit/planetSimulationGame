@@ -5,7 +5,8 @@ public class planetGenerator : MonoBehaviour
 {
     //faces
     private GameObject[] faces;
-    private terrainMeshGenerator[] generators;
+    //private terrainMeshGenerator[] generators;
+    private terrainMeshGenerator[,] generators;
     private Vector3[] directions = {Vector3.up, Vector3.down, Vector3.right, Vector3.left, Vector3.forward, Vector3.back};
     private string[] directionNames = {"Top", "Bottom", "Right", "Left", "Front", "Behind"};
     //mesh
@@ -20,6 +21,10 @@ public class planetGenerator : MonoBehaviour
     public Vector2 offset;
     public int seed;
     public float colourHeight = 0.75f;
+    //chunks
+    public int divisions = 3; //must always be square - pls fix
+    private int chunks;
+    private GameObject[] chunkFaces;
     //generation
     public bool regenerate;
     public bool regenerateOnce;
@@ -29,19 +34,7 @@ public class planetGenerator : MonoBehaviour
 
     private void Start()
     {
-        faces = new GameObject[6];
-        generators = new terrainMeshGenerator[6];
-
-        for (int i = 0; i < 6; i++)
-        {
-            faces[i] = new GameObject("Face" + directionNames[i]);
-            faces[i].transform.parent = transform.transform;
-            faces[i].layer = LayerMask.NameToLayer("Ground");
-
-            generators[i] = faces[i].AddComponent<terrainMeshGenerator>();
-            generators[i].Initialise();
-        }
-
+        Initialise();
         Generate();
     }
 
@@ -54,21 +47,72 @@ public class planetGenerator : MonoBehaviour
         }
     }
 
+    private void Initialise()
+    {
+        chunks = divisions * divisions;
+
+        faces = new GameObject[6];
+        generators = new terrainMeshGenerator[6, chunks];
+
+        for (int i = 0; i < 6; i++)
+        {
+            faces[i] = new GameObject("Face" + directionNames[i]);
+            faces[i].transform.parent = transform;
+
+            chunkFaces = new GameObject[chunks];
+
+            for (int x = 0, j = 0; x < divisions; x++)
+            {
+                for (int z = 0; z < divisions; z++)
+                {
+                    chunkFaces[j] = new GameObject("Chunk" + j);
+                    chunkFaces[j].transform.parent = faces[i].transform;
+                    chunkFaces[j].layer = LayerMask.NameToLayer("Ground");
+                    generators[i, j] = chunkFaces[j].AddComponent<terrainMeshGenerator>();
+                    generators[i, j].Initialise();
+
+                    j++;
+                }
+            }
+        }
+    }
+
     private void Generate()
     {
         for (int i = 0; i < 6; i++)
         {
-            generators[i].SetValues(directions[i], resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
-            generators[i].GenerateMesh();
+            for (int x = 0, j = 0; x < divisions; x++)
+            {
+                for (int z = 0; z < divisions; z++)
+                {
+                    generators[i, j].SetValues(divisions, x, z, directions[i], resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
+                    generators[i, j].GenerateMesh();
 
-            minAltitude = 0;
-            maxAltitude = 0;
-            MinMax(i);
-
-            AltitudeColours(i);
+                    j++;
+                }
+            }
         }
     }
 
+    private int VerticesNumber()
+    {
+        int num = 0;
+
+        for (int i = 0; i < 6; i++)
+        {
+            for (int x = 0, j = 0; x < divisions; x++)
+            {
+                for (int z = 0; z < divisions; z++)
+                {
+                    num += generators[i, j].GetVertices().Length;
+                }
+            }
+        }
+
+        return num;
+    }
+
+    /*
     private void MinMax(int i)
     {
         if (generators[i].MinMaxValues()[0] < minAltitude)
@@ -99,6 +143,7 @@ public class planetGenerator : MonoBehaviour
             }
         }
 
-        generators[i].SetColours(colourMap);
+        //generators[i].SetColours(colourMap);
     }
+    */
 }

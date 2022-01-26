@@ -245,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985249, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1010
+      value: 1300
       objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985249, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -312,7 +312,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40904c5ab316130418d17ad84c42ee24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 200
+  resolution: 40
   radius: 1000
   scale: 50
   layers: 5
@@ -323,6 +323,7 @@ MonoBehaviour:
   offset: {x: 0, y: 0}
   seed: 0
   colourHeight: 700
+  divisions: 9
   regenerate: 0
   regenerateOnce: 0
 --- !u!4 &473727441
