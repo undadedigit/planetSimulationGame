@@ -235,6 +235,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8427534846400985245, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985249, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -245,7 +249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985249, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1300
+      value: 6500
       objectReference: {fileID: 0}
     - target: {fileID: 8427534846400985249, guid: b5ff00d1768d1544f8c3302b5eae77c5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -313,7 +317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resolution: 40
-  radius: 1000
+  radius: 5000
   scale: 50
   layers: 5
   baseAmplitude: 1
@@ -323,7 +327,7 @@ MonoBehaviour:
   offset: {x: 0, y: 0}
   seed: 0
   colourHeight: 700
-  divisions: 9
+  intialDivisions: 1
   regenerate: 0
   regenerateOnce: 0
 --- !u!4 &473727441

@@ -7,18 +7,20 @@ public class terrainMeshGenerator : MonoBehaviour
 {
     //mesh
     private Mesh mesh;
-    private int resolution;
+    public int resolution;
     private float radius;
     private MeshRenderer meshRenderer;
+    private Vector3 position;
     private Vector3 localUp;
     private Vector3 axisA;
     private Vector3 axisB;
     //chunks
-    private int divisions;
+    public int divisions;
     private int xChunk;
     private int zChunk;
+    private chunksGenerator generator;
     //vertices
-    private Vector3[] vertices;
+    public Vector3[] vertices;
     private float maxAltitude;
     private float minAltitude;
     //triangles
@@ -29,7 +31,7 @@ public class terrainMeshGenerator : MonoBehaviour
     private int layers;
     private float baseAmplitude;
     private float baseFrequency;
-    private float ampltiudeMultiplier;
+    private float amplitudeMultiplier;
     private float frequencyMultiplier;
     private Vector2 offset;
     private int seed;
@@ -43,6 +45,9 @@ public class terrainMeshGenerator : MonoBehaviour
     //collisions
     private MeshCollider meshCollider;
 
+    public bool generateMesh;
+    public bool chunk;
+
     public void Initialise()
     {
         mesh = new Mesh();
@@ -54,8 +59,9 @@ public class terrainMeshGenerator : MonoBehaviour
         meshCollider = gameObject.AddComponent<MeshCollider>();
     }
 
-    public void SetValues(int divisions, int xChunk, int zChunk, Vector3 localUp, int resolution, float radius, float scale, int layers, float baseAmplitude, float baseFrequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed, float colourHeight)
+    public void SetValues(Vector3 position, int divisions, int xChunk, int zChunk, Vector3 localUp, int resolution, float radius, float scale, int layers, float baseAmplitude, float baseFrequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed, float colourHeight)
     {
+        this.position = position;
         this.divisions = divisions;
         this.xChunk = xChunk;
         this.zChunk = zChunk;
@@ -66,7 +72,7 @@ public class terrainMeshGenerator : MonoBehaviour
         this.layers = layers;
         this.baseAmplitude = baseAmplitude;
         this.baseFrequency = baseFrequency;
-        this.ampltiudeMultiplier = amplitudeMultiplier;
+        this.amplitudeMultiplier = amplitudeMultiplier;
         this.frequencyMultiplier = frequencyMultiplier;
         this.offset = offset;
         this.seed = seed;
@@ -109,24 +115,18 @@ public class terrainMeshGenerator : MonoBehaviour
 
     private void SetVertices(int i, int x, int z)
     {
-        Vector2 percent = new Vector2((x + resolution * xChunk) / divisions, (z + resolution * zChunk) / divisions) / (resolution - 1);
+        float chunkMultiplier = (float) (resolution - 1) / resolution;
+        float xPercent = (x + resolution * (chunkMultiplier * xChunk)) / divisions;
+        float zPercent = (z + resolution * (chunkMultiplier * zChunk)) / divisions;
+
+        Vector2 percent = new Vector2(xPercent, zPercent) / (resolution - 1);
         Vector3 flatVertex = (localUp + (percent.x - 0.5f) * 2 * axisA + (percent.y - 0.5f) * 2 * axisB) * radius;
         Vector3 sphereVertex = flatVertex.normalized;
 
-        float y = GenerateNoise(sphereVertex, scale, layers, baseAmplitude, baseFrequency, ampltiudeMultiplier, frequencyMultiplier, offset, seed);
+        float y = GenerateNoise(sphereVertex, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed);
 
         vertices[i] = flatVertex;
-        vertices[i] = sphereVertex * (y * ((noiseMultiplier == 0) ? 1 : noiseMultiplier)) * radius;
-
-        float altitude = Vector3.Distance(Vector3.zero, vertices[i]);
-        if (altitude > maxAltitude)
-        {
-            maxAltitude = altitude;
-        }
-        else if (altitude < minAltitude)
-        {
-            minAltitude = altitude;
-        }
+        vertices[i] = sphereVertex * (y * ((noiseMultiplier == 0) ? 1 : noiseMultiplier)) * radius + position;
     }
 
     private void SetTriangles(int i, int x, int z)
@@ -155,7 +155,7 @@ public class terrainMeshGenerator : MonoBehaviour
         colourMap[i] = new Color(strength, strength, strength);
     }
 
-    public float GenerateNoise(Vector3 point, float scale, int layers, float amplitude, float frequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed)
+    public float GenerateNoise(Vector3 point, int layers, float amplitude, float frequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed)
     {
         System.Random rng = new System.Random(seed);
 
@@ -186,14 +186,30 @@ public class terrainMeshGenerator : MonoBehaviour
         meshCollider.sharedMesh = mesh;
     }
 
-    public float[] MinMaxValues()
+    private void Update()
     {
-        float[] minMax = {minAltitude, maxAltitude};
-        return minMax;
+        if (chunk)
+        {
+            Chunk();
+            chunk = false;
+        }
+
+        if (generateMesh)
+        {
+            GenerateMesh();
+            generateMesh = false;
+        }
     }
 
-    public Vector3[] GetVertices()
+    public void Chunk()
     {
-        return mesh.vertices;
+        int addition = 2 - (int)Mathf.Log(divisions, 2);
+        int x = xChunk * ((int)Mathf.Log(divisions, 2) + addition);
+        int z = zChunk * ((int)Mathf.Log(divisions, 2) + addition);
+
+        mesh.Clear();
+        generator = gameObject.AddComponent<chunksGenerator>();
+        generator.SetValues(x, z, x + 2, z + 2, transform.position, divisions * 2, localUp, resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
+        generator.GenerateChunks();
     }
 }

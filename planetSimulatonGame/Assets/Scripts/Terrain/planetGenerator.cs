@@ -5,8 +5,7 @@ public class planetGenerator : MonoBehaviour
 {
     //faces
     private GameObject[] faces;
-    //private terrainMeshGenerator[] generators;
-    private terrainMeshGenerator[,] generators;
+    private chunksGenerator[] generators;
     private Vector3[] directions = {Vector3.up, Vector3.down, Vector3.right, Vector3.left, Vector3.forward, Vector3.back};
     private string[] directionNames = {"Top", "Bottom", "Right", "Left", "Front", "Behind"};
     //mesh
@@ -22,7 +21,7 @@ public class planetGenerator : MonoBehaviour
     public int seed;
     public float colourHeight = 0.75f;
     //chunks
-    public int divisions = 3; //must always be square - pls fix
+    public int intialDivisions = 3;
     private int chunks;
     private GameObject[] chunkFaces;
     //generation
@@ -35,7 +34,6 @@ public class planetGenerator : MonoBehaviour
     private void Start()
     {
         Initialise();
-        Generate();
     }
 
     private void Update()
@@ -49,31 +47,17 @@ public class planetGenerator : MonoBehaviour
 
     private void Initialise()
     {
-        chunks = divisions * divisions;
+        chunks = intialDivisions * intialDivisions;
 
         faces = new GameObject[6];
-        generators = new terrainMeshGenerator[6, chunks];
+        generators = new chunksGenerator[6];
 
         for (int i = 0; i < 6; i++)
         {
-            faces[i] = new GameObject("Face" + directionNames[i]);
+            faces[i] = new GameObject(directionNames[i] + "Face");
             faces[i].transform.parent = transform;
-
-            chunkFaces = new GameObject[chunks];
-
-            for (int x = 0, j = 0; x < divisions; x++)
-            {
-                for (int z = 0; z < divisions; z++)
-                {
-                    chunkFaces[j] = new GameObject("Chunk" + j);
-                    chunkFaces[j].transform.parent = faces[i].transform;
-                    chunkFaces[j].layer = LayerMask.NameToLayer("Ground");
-                    generators[i, j] = chunkFaces[j].AddComponent<terrainMeshGenerator>();
-                    generators[i, j].Initialise();
-
-                    j++;
-                }
-            }
+            generators[i] = faces[i].AddComponent<chunksGenerator>();
+            GenerateMeshes(i);
         }
     }
 
@@ -81,17 +65,22 @@ public class planetGenerator : MonoBehaviour
     {
         for (int i = 0; i < 6; i++)
         {
-            for (int x = 0, j = 0; x < divisions; x++)
+            for (int x = 0, j = 0; x < intialDivisions; x++)
             {
-                for (int z = 0; z < divisions; z++)
+                for (int z = 0; z < intialDivisions; z++)
                 {
-                    generators[i, j].SetValues(divisions, x, z, directions[i], resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
-                    generators[i, j].GenerateMesh();
+                    GenerateMeshes(i);
 
                     j++;
                 }
             }
         }
+    }
+
+    private void GenerateMeshes(int i)
+    {
+        generators[i].SetValues(0, 0, intialDivisions, intialDivisions, transform.position, intialDivisions, directions[i], resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
+        generators[i].GenerateChunks();
     }
 
     private int VerticesNumber()
@@ -100,11 +89,11 @@ public class planetGenerator : MonoBehaviour
 
         for (int i = 0; i < 6; i++)
         {
-            for (int x = 0, j = 0; x < divisions; x++)
+            for (int x = 0, j = 0; x < intialDivisions; x++)
             {
-                for (int z = 0; z < divisions; z++)
+                for (int z = 0; z < intialDivisions; z++)
                 {
-                    num += generators[i, j].GetVertices().Length;
+                    //num += generators[i, j].GetVertices().Length;
                 }
             }
         }
