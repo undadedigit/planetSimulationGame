@@ -1,1 +1,1 @@
-# planetSimulationGame
+# PlanetSimulationGame
