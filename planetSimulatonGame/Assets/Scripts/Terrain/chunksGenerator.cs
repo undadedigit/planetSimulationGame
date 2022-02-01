@@ -27,6 +27,8 @@ public class chunksGenerator : MonoBehaviour
     public Vector2 offset;
     public int seed;
     public float colourHeight = 0.75f;
+
+    public bool dechunk;
     
     public void SetValues(int xStart, int zStart, int xEnd, int zEnd, Vector3 position, int divisions, Vector3 localUp, int resolution, float radius, float scale, int layers, float baseAmplitude, float baseFrequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed, float colourHeight, int chunks = -1)
     {
@@ -76,5 +78,24 @@ public class chunksGenerator : MonoBehaviour
     {
         generators[i].SetValues(transform.position, divisions, x, z, localUp, resolution, radius, scale, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed, colourHeight);
         generators[i].GenerateMesh();
+    }
+
+    private void Dechunk()
+    {
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        gameObject.GetComponent<terrainMeshGenerator>().GenerateMesh();
+    }
+
+    private void Update()
+    {
+        if (dechunk)
+        {
+            Dechunk();
+            dechunk = false;
+        }
     }
 }

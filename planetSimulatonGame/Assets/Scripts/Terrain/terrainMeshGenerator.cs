@@ -19,10 +19,12 @@ public class terrainMeshGenerator : MonoBehaviour
     private int xChunk;
     private int zChunk;
     private chunksGenerator generator;
+    public bool chunk;
     //vertices
-    public Vector3[] vertices;
+    private Vector3[] vertices;
     private float maxAltitude;
     private float minAltitude;
+    public Vector3 midpoint;
     //triangles
     private int[] triangles;
     private int tris;
@@ -44,9 +46,8 @@ public class terrainMeshGenerator : MonoBehaviour
     private float colourHeight;
     //collisions
     private MeshCollider meshCollider;
-
-    public bool generateMesh;
-    public bool chunk;
+    //player
+    private Transform player;
 
     public void Initialise()
     {
@@ -57,6 +58,8 @@ public class terrainMeshGenerator : MonoBehaviour
         noise = new Noise();
 
         meshCollider = gameObject.AddComponent<MeshCollider>();
+
+        player = GameObject.Find("Player").transform;
     }
 
     public void SetValues(Vector3 position, int divisions, int xChunk, int zChunk, Vector3 localUp, int resolution, float radius, float scale, int layers, float baseAmplitude, float baseFrequency, float amplitudeMultiplier, float frequencyMultiplier, Vector2 offset, int seed, float colourHeight)
@@ -124,6 +127,7 @@ public class terrainMeshGenerator : MonoBehaviour
         Vector3 sphereVertex = flatVertex.normalized;
 
         float y = GenerateNoise(sphereVertex, layers, baseAmplitude, baseFrequency, amplitudeMultiplier, frequencyMultiplier, offset, seed);
+        //y = 1;
 
         vertices[i] = flatVertex;
         vertices[i] = sphereVertex * (y * ((noiseMultiplier == 0) ? 1 : noiseMultiplier)) * radius + position;
@@ -188,24 +192,20 @@ public class terrainMeshGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (chunk)
+        float playerDistance = Vector3.Distance(player.position, midpoint);
+        
+        if (playerDistance < 2000 && divisions < 4 && !chunk)
         {
             Chunk();
-            chunk = false;
-        }
-
-        if (generateMesh)
-        {
-            GenerateMesh();
-            generateMesh = false;
+            chunk = true;
         }
     }
 
     public void Chunk()
     {
         int addition = 2 - (int)Mathf.Log(divisions, 2);
-        int x = xChunk * ((int)Mathf.Log(divisions, 2) + addition);
-        int z = zChunk * ((int)Mathf.Log(divisions, 2) + addition);
+        int x = xChunk * 2;//((int)Mathf.Log(divisions, 2) + addition);
+        int z = zChunk * 2;//((int)Mathf.Log(divisions, 2) + addition);
 
         mesh.Clear();
         generator = gameObject.AddComponent<chunksGenerator>();
